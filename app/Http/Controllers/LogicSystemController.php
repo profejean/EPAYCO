@@ -48,22 +48,22 @@ class LogicSystemController extends Controller
 
     public function recharge_wallet(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'document' => 'required|numeric',        
+            'tlf' => 'required|numeric',
+            'cant' => 'required|numeric',
+    
+        ]);
+
+        if ($validator->fails()) {
+            return $validator->getMessageBag()->all(); 
+        }
+
         $client = User::where('document','=',$request->document)->where('tlf','=',$request->tlf)->count();
 
         if($client > 0)
         {
-            $validator = Validator::make($request->all(), [
-                'document' => 'required|numeric',        
-                'tlf' => 'required|numeric',
-                'cant' => 'required|numeric',
-        
-            ]);
-
-            if ($validator->fails()) {
-                return $validator->getMessageBag()->all();
-                
             
-            }
 
             $recharge = new RechargeWallet();
             $recharge->document = $request->get('document');     
@@ -86,7 +86,7 @@ class LogicSystemController extends Controller
             $data = [
                 "status" => "01",
                 "success" => false,
-                "message" => "Credentials phone or document not exist!"
+                "message" => "Credentials phone or document, they are not compatible!"
             ];
 
             return response()->json($data);
@@ -216,8 +216,8 @@ class LogicSystemController extends Controller
     public function consult(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'document' => 'required|exists:client|numeric',
-            'tlf' => 'required|exists:client|numeric',  
+            'document' => 'required|exists:users|numeric',
+            'tlf' => 'required|exists:users|numeric',  
       
         ]);
         if ($validator->fails()) {
